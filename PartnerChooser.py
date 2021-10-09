@@ -1,4 +1,5 @@
 import random
+from time import time
 
 class PartnerChooser:
 
@@ -14,30 +15,33 @@ class PartnerChooser:
             if numberOfLoops > 100:
                 self.successful = False
                 break
-            names_dup = names
+
+            partners = names
             for name in names:
-            
-                if names_dup.count(name) > 0:
-                    names_dup2 = names_dup[0:names_dup.index(name)] + names_dup[names_dup.index(name) + 1:]
+                # remove the name from the partner list and make a duplicate
+                if partners.count(name) > 0:
+                    partners_dup = partners[0:partners.index(name)] + partners[partners.index(name) + 1:]
                 else:
-                    names_dup2 = names_dup.copy()
+                    partners_dup = partners.copy()
             
-                maxIndex = len(names_dup2) - 1
-                if (maxIndex < 0):
-                    # indicator that the last name was removed from names_dup2, which means the last person is paired with itself
+                maxIndex = len(partners_dup) - 1
+                if maxIndex < 0:
+                    # indicator that the last name was removed from partners_dup, which means the last person is paired with itself
                     # -> stop this loop and begin again
                     isValid = False
                     self.pairs.clear()
                     break
-                elif (maxIndex < 1):
+                
+                if maxIndex < 1:
                     randomIndex = 0
                     isValid = True
                 else:
-                    randomIndex = random.randrange(0, maxIndex, 1)
+                    randomIndex = random.randint(0, maxIndex)
 
-                partner = names_dup2[randomIndex]
+                partner = partners_dup[randomIndex]
                 self.pairs.append((name, partner))
-                names_dup = names_dup[0:names_dup.index(partner)] + names_dup[names_dup.index(partner) + 1:]
+                # remove the chosen partner from the partner list
+                partners = partners[0:partners.index(partner)] + partners[partners.index(partner) + 1:]
 
     def IsSuccessful(self):
         return self.successful
@@ -46,13 +50,14 @@ class PartnerChooser:
         for pair in self.pairs:
             if pair[0] == name:
                 return pair[1]
-        return "Did not find your name, check your spelling"
+        raise Exception("the given name was not found in the database")
 
 
 def test():
     names = ["Holt", "Peralta", "Santiago", "Boyle", "Diaz", "Linetti", "Jeffords", "Scully", "Hitchcock"]
     partners = []
     seed = "Brooklyn Nine-Nine"
+
 
     print("Test if name randomizer works")  # and put the partners into a list to check them later
     partnerChooser = PartnerChooser(names, seed)
@@ -69,21 +74,41 @@ def test():
                 return
 
         print("Passed")
-
-        print("\nTest if name randomizer returns the same results for the same seed")
-        for i in range(1000):
-            partnerChooser = PartnerChooser(names, seed)
-            if not partnerChooser.IsSuccessful():
-                print("Failed, NameRandomizer was not successful after {0} tries".format(i+1))
-                return
-            for index in range(len(names)):
-                if not partners[index] == partnerChooser.GetPartner(names[index]):
-                    print("Failed, NameRandomizer returned different partner after {0} tries".format(i+1))
-                    return
-        print("Passed")
-
     else:
         print("Failed, nameRandomizer was not successful with the given seed")
+
+    print("\nTest different seed")
+    partnerChooser = PartnerChooser(names, seed + "!")
+    if partnerChooser.IsSuccessful():
+        machesToLastRun = 0
+        for i in range(len(names)):            
+            print("{0} : {1}".format(names[i], partnerChooser.GetPartner(names[i])))
+            if partners[i] == partnerChooser.GetPartner(names[i]):
+                machesToLastRun += 1
+        if machesToLastRun > (len(names) / 2):
+            print("Failed, the result is too close to the last run")
+        else:
+            print("Passed")
+    else:        
+        print("Failed, nameRandomizer was not successful with the given seed")
+
+    print("\nTest assigning partners with only two names")
+    names = ["Test1", "Test2"]
+    seed = int(time())
+    partnerChooser = PartnerChooser(names, seed)
+    if not partnerChooser.IsSuccessful():
+        print("Failed, two names could not be matched")
+    elif (not "Test1" == partnerChooser.GetPartner("Test2")) | (not "Test2" == partnerChooser.GetPartner("Test1")):
+        print("Failed, could not assign correct partner")
+    else:
+        print("Passed")
+
+    print("\nTest the exception")
+    try:
+        partnerChooser.GetPartner("The Vulture")
+        print("Failed, did not throw an exception")
+    except:
+        print("Passed")
 
 if __name__ == '__main__':
     test()
