@@ -1,0 +1,7 @@
+Secret Santa Buddy
+Hello {0},
+
+your secret santa is {1}. They wish for {2}.
+
+Best regards,
+this awesome python script
