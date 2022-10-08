@@ -58,9 +58,10 @@ class EmailSender:
                 if not test:
                     # Create a secure SSL context
                     context = ssl.create_default_context()
-                    server.ehlo()
-                    server.starttls(context=context) # and secure the connection
-                    server.ehlo()
+                    #server.ehlo()
+                    server.starttls()
+                    #server.starttls(context=context) # and secure the connection
+                    #server.ehlo()
                     server.login(emailaddress, password)
 
                 message = EmailMessage()

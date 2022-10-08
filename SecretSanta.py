@@ -24,7 +24,7 @@ class SecretSanta:
             if len(row) > 2:
                 wishes[row[1]] = row[2]
             else:
-                wishes[row[1]] = "nothing special"
+                wishes[row[1]] = None
         csvFile.close()
 
         # open and read the email template; the first line is used as the subject
@@ -63,7 +63,7 @@ def main(argv):
     this script will shuffle a list of names to provide each person with a partner and send
     emails out to inform the person which partner was assigned (and an optional wish)
     Arguments: <path to a csv file> <path to a text file>
-    --email=<email address of the sender (gmail only)> --password<password of the email account>
+    --email=<email address of the sender (gmail only)> --password=<password of the email account>
     --keepEmails --test
     positional arguments:
     the first argument is the path to a csv file where all attendees are listed. The first column
